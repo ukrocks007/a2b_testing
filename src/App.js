@@ -1,25 +1,35 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState, useEffect } from "react";
+import "./App.css";
+import axios from "axios";
+import Layout from "./Layout";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+  const [layoutId, setLayoutId] = useState(0);
+  const id = localStorage.getItem("uid");
+  useEffect(() => {
+    if (!layoutId) {
+      axios
+        .get("http://localhost:2000/layout", {
+          headers: {
+            uid: id,
+          },
+        })
+        .then((res) => {
+          const { id, layout } = res.data;
+          if (id) {
+            localStorage.setItem("uid", id);
+          }
+          if (layout && !layoutId) {
+            setLayoutId(layout);
+            console.log("Assigned the layout id", layout);
+          }
+        })
+        .catch((ex) => {
+          console.log(ex);
+        });
+    }
+  }, []);
+  return <Layout layoutId={layoutId} />;
 }
 
 export default App;
